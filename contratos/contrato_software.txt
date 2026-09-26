@@ -1,0 +1,38 @@
+CONTRATO DE LICENCIAMENTO E SUPORTE DE SOFTWARE
+
+Pelo presente instrumento, EMPRESA EXEMPLO TECNOLOGIA LTDA., inscrita no CNPJ 00.000.000/0001-00, doravante CONTRATANTE, e NUVEM SISTEMAS DE GESTÃO S.A., inscrita no CNPJ 22.222.222/0001-22, doravante CONTRATADA, celebram o presente contrato, que se regerá pelas cláusulas a seguir.
+
+CLÁUSULA 1ª – DO OBJETO
+A CONTRATADA concede à CONTRATANTE licença de uso, não exclusiva e intransferível, do sistema de gestão financeira NuvemFin, na modalidade SaaS (software como serviço), para até 50 (cinquenta) usuários simultâneos, incluindo hospedagem, atualizações e suporte técnico.
+
+CLÁUSULA 2ª – DA VIGÊNCIA
+O presente contrato terá vigência de 24 (vinte e quatro) meses, a contar de 1º de abril de 2026, com término em 31 de março de 2028. A renovação não é automática e dependerá de termo aditivo assinado pelas partes, cuja negociação deverá ser iniciada com antecedência mínima de 90 (noventa) dias do término.
+
+CLÁUSULA 3ª – DO VALOR
+A CONTRATANTE pagará à CONTRATADA o valor mensal de R$ 9.200,00 (nove mil e duzentos reais), acrescido de taxa única de implantação de R$ 15.000,00 (quinze mil reais), paga em 3 (três) parcelas mensais iguais a partir do primeiro mês de vigência.
+
+CLÁUSULA 4ª – DO PAGAMENTO
+Os pagamentos serão feitos por boleto bancário, com vencimento no dia 15 (quinze) de cada mês. Em caso de atraso superior a 30 (trinta) dias, a CONTRATADA poderá suspender o acesso ao sistema após notificação prévia de 5 (cinco) dias úteis.
+
+CLÁUSULA 5ª – DO REAJUSTE
+O valor mensal será reajustado a cada 12 (doze) meses pela variação acumulada do IGP-M/FGV. Caso o índice seja negativo, o valor permanecerá inalterado.
+
+CLÁUSULA 6ª – DO NÍVEL DE SERVIÇO (SLA)
+A CONTRATADA garante disponibilidade mínima do sistema de 99,5% (noventa e nove vírgula cinco por cento) ao mês. Chamados críticos deverão ser atendidos em até 2 (duas) horas e solucionados em até 8 (oito) horas. Para cada 0,5% de indisponibilidade abaixo do mínimo, será concedido crédito de 10% (dez por cento) na fatura do mês seguinte, limitado a 30% (trinta por cento).
+
+CLÁUSULA 7ª – DA PROTEÇÃO DE DADOS
+A CONTRATADA atuará como operadora dos dados pessoais inseridos no sistema, tratando-os exclusivamente conforme as instruções da CONTRATANTE e em conformidade com a Lei nº 13.709/2018 (LGPD). Incidentes de segurança deverão ser comunicados à CONTRATANTE em até 24 (vinte e quatro) horas.
+
+CLÁUSULA 8ª – DA CONFIDENCIALIDADE
+As partes manterão sigilo sobre todas as informações a que tiverem acesso em razão deste contrato, durante sua vigência e por 5 (cinco) anos após seu término.
+
+CLÁUSULA 9ª – DA RESCISÃO
+A CONTRATANTE poderá rescindir o contrato antes do término da vigência mediante aviso prévio de 60 (sessenta) dias, ficando sujeita a multa equivalente a 20% (vinte por cento) do valor das mensalidades restantes. A rescisão por descumprimento do SLA por 3 (três) meses consecutivos isenta a CONTRATANTE de qualquer multa.
+
+CLÁUSULA 10ª – DA DEVOLUÇÃO DOS DADOS
+Encerrado o contrato, a CONTRATADA disponibilizará à CONTRATANTE a exportação integral de seus dados em formato aberto, no prazo de 30 (trinta) dias, e os excluirá definitivamente de seus servidores após esse prazo.
+
+CLÁUSULA 11ª – DO FORO
+Fica eleito o foro da Comarca de São Paulo/SP para dirimir quaisquer questões oriundas deste contrato.
+
+São Paulo, 15 de março de 2026.
