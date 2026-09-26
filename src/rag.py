@@ -1,14 +1,13 @@
-import ollama 
-from busca_manual import criar_indice , buscar
-
+import ollama
+from banco import buscar
 
 MODELO_CHAT = "qwen2.5:7b"
-PASTA_CONTRATOS = "contratos"
 
 INSTRUCOES = """Você é um assistente de contratos de RH.
 Responda em português, SOMENTE com base nos trechos de contrato fornecidos.
 Sempre cite a cláusula de onde tirou a informação (ex.: "Cláusula 5ª").
 Se a informação não estiver nos trechos, diga que não encontrou. Não invente."""
+
 
 def montar_contexto(trechos):
     partes = []
@@ -17,8 +16,8 @@ def montar_contexto(trechos):
     return "\n\n".join(partes)
 
 
-def responder(pergunta, indice):
-    trechos = buscar(pergunta, indice, quantidade=3)
+def responder(pergunta):
+    trechos = buscar(pergunta, quantidade=3)
 
     contexto = montar_contexto(trechos)
     mensagem = f"Trechos dos contratos:\n\n{contexto}\n\nPergunta: {pergunta}"
@@ -34,16 +33,14 @@ def responder(pergunta, indice):
     return resposta["message"]["content"], trechos
 
 
-
 if __name__ == "__main__":
-    indice = criar_indice(PASTA_CONTRATOS)
-    print(f"\nÍndice pronto com {len(indice)} cláusulas.\n")
+    print("Certifique-se de já ter rodado 'python banco.py' para indexar os contratos.\n")
 
     while True:
         pergunta = input("Pergunta (ou 'sair'): ")
         if pergunta == "sair":
             break
-        texto, trechos = responder(pergunta, indice)
+        texto, trechos = responder(pergunta)
         print(f"\n{texto}")
         print("\nConsultado: " + ", ".join(f"{t['arquivo']} ({t['clausula']})" for t in trechos))
         print()
