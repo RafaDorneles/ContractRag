@@ -1,8 +1,5 @@
 import ollama
-
 from leitura import read_pdf
-
-
 
 MODELO = "qwen2.5:7b"
 contrato = read_pdf("contratos/exemplo.pdf")
