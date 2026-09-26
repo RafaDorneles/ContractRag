@@ -7,15 +7,15 @@ MODELO_EMBEDDING = "bge-m3"
 
 def gerar_embedding(texto):
     resposta = ollama.embed(model=MODELO_EMBEDDING, input= texto)
-    return resposta["embedding"][0]
+    return resposta["embeddings"][0]
 
 
 def similaridade(a, b):
      
-    produto = sum(x * y for x,y in zip(a,b))
-    tamanho_a = math.sqrt(sum(x * y for x in a))
-    tamanho_b = math.sqrt(sum(y * y for y in b))     
-    return produto / (tamanho_b)
+    produto = sum(x * y for x, y in zip(a, b))
+    tamanho_a = math.sqrt(sum(x * x for x in a))
+    tamanho_b = math.sqrt(sum(y * y for y in b))
+    return produto / (tamanho_a * tamanho_b)
 
 
 if __name__ == "__main__":
