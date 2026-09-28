@@ -1,27 +1,28 @@
 import re
-from leitura import read_pdf
+from reading import read_pdf
 
-PADRAO = re.compile(r"^\s*CL[ÁA]USULA\s+(\d+)", re.IGNORECASE | re.MULTILINE)
+# Matches the Portuguese clause headings ("CLÁUSULA 5") used in the contracts
+PATTERN = re.compile(r"^\s*CL[ÁA]USULA\s+(\d+)", re.IGNORECASE | re.MULTILINE)
 
 
-def dividir_em_clausulas(texto):
-    marcas = list(PADRAO.finditer(texto))
-    pedacos = []
+def split_into_clauses(text):
+    marks = list(PATTERN.finditer(text))
+    pieces = []
 
-    if marcas and marcas[0].start() > 0:
-        pedacos.append({"clausula": "Preâmbulo", "texto": texto[:marcas[0].start()].strip()})
+    if marks and marks[0].start() > 0:
+        pieces.append({"clause": "Preamble", "text": text[:marks[0].start()].strip()})
 
-    for i, marca in enumerate(marcas):
-        inicio = marca.start()
-        fim = marcas[i + 1].start() if i + 1 < len(marcas) else len(texto)
-        numero = marca.group(1)
-        pedacos.append({"clausula": f"Cláusula {numero}ª", "texto": texto[inicio:fim].strip()})
+    for i, mark in enumerate(marks):
+        start = mark.start()
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(text)
+        number = mark.group(1)
+        pieces.append({"clause": f"Clause {number}", "text": text[start:end].strip()})
 
-    return pedacos
+    return pieces
 
 
 if __name__ == "__main__":
-    texto = read_pdf("contratos/exemplo.pdf")
-    for p in dividir_em_clausulas(texto):
-        print(f"--- {p['clausula']} ({len(p['texto'])} caracteres)")
-        print(p["texto"][:80], "...\n")
+    text = read_pdf("contratos/exemplo.pdf")
+    for p in split_into_clauses(text):
+        print(f"--- {p['clause']} ({len(p['text'])} characters)")
+        print(p["text"][:80], "...\n")
