@@ -1,5 +1,9 @@
 import ollama
 from database import search
+import time
+from observabilidade import registrar
+
+VERSAO_PROMPT = "v1"
 
 CHAT_MODEL = "qwen2.5:7b"
 
@@ -16,21 +20,44 @@ def build_context(passages):
     return "\n\n".join(parts)
 
 
-def answer(question):
-    passages = search(question, count=3)
+def responder(pergunta):
+    # R: busca, medindo o tempo
+    inicio = time.perf_counter()
+    trechos = search(pergunta, count=3)
+    tempo_busca = time.perf_counter() - inicio
 
-    context = build_context(passages)
-    message = f"Contract passages:\n\n{context}\n\nQuestion: {question}"
+    contexto = build_context(trechos)
+    mensagem = f"Trechos dos contratos:\n\n{contexto}\n\nPergunta: {pergunta}"
 
-    response = ollama.chat(
+    # G: geração, medindo o tempo
+    inicio = time.perf_counter()
+    resposta = ollama.chat(
         model=CHAT_MODEL,
         messages=[
             {"role": "system", "content": INSTRUCTIONS},
-            {"role": "user", "content": message},
+            {"role": "user", "content": mensagem},
         ],
         options={"temperature": 0},
     )
-    return response["message"]["content"], passages
+    tempo_geracao = time.perf_counter() - inicio
+    texto = resposta["message"]["content"]
+
+    registrar({
+        "pergunta": pergunta,
+        "modelo": CHAT_MODEL,
+        "versao_prompt": VERSAO_PROMPT,
+        "trechos": [
+            {"arquivo": t["arquivo"], "clausula": t["clausula"], "nota": round(t.get("nota", 0), 3)}
+            for t in trechos
+        ],
+        "resposta": texto,
+        "tempo_busca_s": round(tempo_busca, 2),
+        "tempo_geracao_s": round(tempo_geracao, 2),
+        "tokens_entrada": resposta["prompt_eval_count"],
+        "tokens_saida": resposta["eval_count"],
+    })
+
+    return texto, trechos
 
 
 if __name__ == "__main__":
@@ -40,7 +67,7 @@ if __name__ == "__main__":
         question = input("Question (or 'quit'): ")
         if question == "quit":
             break
-        text, passages = answer(question)
+        text, passages = responder(question)
         print(f"\n{text}")
         print("\nConsulted: " + ", ".join(f"{p['file']} ({p['clause']})" for p in passages))
         print()
