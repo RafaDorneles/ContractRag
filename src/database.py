@@ -27,11 +27,14 @@ def search(question, count=3):
     )
 
     passages = []
-    for text, metadata in zip(result["documents"][0], result["metadatas"][0]):
+    for text, metadata, distance in zip(
+        result["documents"][0], result["metadatas"][0], result["distances"][0]
+    ):
         passages.append({
             "file": metadata["file"],
             "clause": metadata["clause"],
             "text": text,
+            "score": 1 - distance,  # cosine similarity
         })
     return passages
 

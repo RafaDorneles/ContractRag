@@ -37,7 +37,7 @@ def responder(pergunta):
             {"role": "system", "content": INSTRUCTIONS},
             {"role": "user", "content": mensagem},
         ],
-        options={"temperature": 0},
+        options={"temperature": 0}, 
     )
     tempo_geracao = time.perf_counter() - inicio
     texto = resposta["message"]["content"]
@@ -47,7 +47,7 @@ def responder(pergunta):
         "modelo": CHAT_MODEL,
         "versao_prompt": VERSAO_PROMPT,
         "trechos": [
-            {"arquivo": t["arquivo"], "clausula": t["clausula"], "nota": round(t.get("nota", 0), 3)}
+            {"arquivo": t["file"], "clausula": t["clause"], "nota": round(t.get("score", 0), 3)}
             for t in trechos
         ],
         "resposta": texto,
