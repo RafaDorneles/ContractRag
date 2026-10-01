@@ -1,4 +1,5 @@
 ollama
 pypdf
 chromadb
-
+langfuse
+python-dotenv
