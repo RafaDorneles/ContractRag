@@ -1,9 +1,17 @@
 import ollama
-from database import search
 import time
-from observabilidade import registrar
+from dotenv import load_dotenv
+load_dotenv()
 
-VERSAO_PROMPT = "v1"
+from langfuse import get_client
+
+langfuse = get_client()
+
+from database import search
+from observability import log_event
+
+
+PROMPT_VERSION = "v1"
 
 CHAT_MODEL = "qwen2.5:7b"
 
@@ -20,44 +28,78 @@ def build_context(passages):
     return "\n\n".join(parts)
 
 
-def responder(pergunta):
-    # R: busca, medindo o tempo
-    inicio = time.perf_counter()
-    trechos = search(pergunta, count=3)
-    tempo_busca = time.perf_counter() - inicio
+def answer(question):
+    with langfuse.start_as_current_observation(
+        as_type="span",
+        name="contracts-rag",
+        input={"question": question},
+    ) as rag:
+        rag.update(metadata={"model": CHAT_MODEL, "prompt_version": PROMPT_VERSION})
 
-    contexto = build_context(trechos)
-    mensagem = f"Trechos dos contratos:\n\n{contexto}\n\nPergunta: {pergunta}"
+        # R: retrieval
+        with langfuse.start_as_current_observation(
+            as_type="span",
+            name="retrieval",
+            input={"question": question},
+        ) as retrieval_span:
+            start = time.perf_counter()
+            passages = search(question, count=3)
+            retrieval_time = time.perf_counter() - start
+            retrieval_span.update(output=[
+                {
+                    "file": p["file"],
+                    "clause": p["clause"],
+                    "score": round(p.get("score", 0), 3),
+                    "text": p["text"],
+                }
+                for p in passages
+            ])
 
-    # G: geração, medindo o tempo
-    inicio = time.perf_counter()
-    resposta = ollama.chat(
-        model=CHAT_MODEL,
-        messages=[
+        # A: build the prompt
+        context = build_context(passages)
+        messages = [
             {"role": "system", "content": INSTRUCTIONS},
-            {"role": "user", "content": mensagem},
-        ],
-        options={"temperature": 0}, 
-    )
-    tempo_geracao = time.perf_counter() - inicio
-    texto = resposta["message"]["content"]
+            {"role": "user", "content": f"Contract passages:\n\n{context}\n\nQuestion: {question}"},
+        ]
 
-    registrar({
-        "pergunta": pergunta,
-        "modelo": CHAT_MODEL,
-        "versao_prompt": VERSAO_PROMPT,
-        "trechos": [
-            {"arquivo": t["file"], "clausula": t["clause"], "nota": round(t.get("score", 0), 3)}
-            for t in trechos
+        # G: generation
+        with langfuse.start_as_current_observation(
+            as_type="generation",
+            name="generation",
+            model=CHAT_MODEL,
+            input=messages,
+        ) as generation:
+            start = time.perf_counter()
+            response = ollama.chat(model=CHAT_MODEL, messages=messages, options={"temperature": 0})
+            generation_time = time.perf_counter() - start
+            text = response["message"]["content"]
+            generation.update(
+                output=text,
+                usage_details={
+                    "input_tokens": response["prompt_eval_count"],
+                    "output_tokens": response["eval_count"],
+                },
+            )
+
+        rag.update(output={"answer": text})
+
+    # hand-made log, kept to compare with Langfuse
+    log_event({
+        "question": question,
+        "model": CHAT_MODEL,
+        "prompt_version": PROMPT_VERSION,
+        "passages": [
+            {"file": p["file"], "clause": p["clause"], "score": round(p.get("score", 0), 3)}
+            for p in passages
         ],
-        "resposta": texto,
-        "tempo_busca_s": round(tempo_busca, 2),
-        "tempo_geracao_s": round(tempo_geracao, 2),
-        "tokens_entrada": resposta["prompt_eval_count"],
-        "tokens_saida": resposta["eval_count"],
+        "answer": text,
+        "retrieval_time_s": round(retrieval_time, 2),
+        "generation_time_s": round(generation_time, 2),
+        "input_tokens": response["prompt_eval_count"],
+        "output_tokens": response["eval_count"],
     })
 
-    return texto, trechos
+    return text, passages
 
 
 if __name__ == "__main__":
@@ -67,7 +109,9 @@ if __name__ == "__main__":
         question = input("Question (or 'quit'): ")
         if question == "quit":
             break
-        text, passages = responder(question)
+        text, passages = answer(question)
         print(f"\n{text}")
         print("\nConsulted: " + ", ".join(f"{p['file']} ({p['clause']})" for p in passages))
         print()
+
+        langfuse.flush()
